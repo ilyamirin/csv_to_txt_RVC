@@ -17,7 +17,9 @@ CONCLUSION = ['As Can Be Seen', 'After All', 'By And Large', 'Generally Speaking
               'On Balance', 'For The Most Part', 'Altogether', 'Obviously', 'Overall', 'Ultimately', 'Ordinarily',
               'Definitely',
               'Usually', 'In this way', 'In conclusion', 'conclusion', 'summary', 'summarize', 'In general',
-              'Based on this', 'Thus', 'Therefore', 'Summing up', 'In the end', 'To conclude', 'Finally']
+              'Based on this', 'Thus', 'Therefore', 'Summing up', 'In the end', 'To conclude', 'Finally', 'Overall',
+              'conclusions', 'By using', 'In addition', 'Nevertheless', 'Despite', 'Collectively', 'We have shown that',
+              'As A Result', 'Hence', 'By All Means', 'To Emphasize', 'Henceforth']
 
 
 def get_personal_opinion_matches(s: str) -> list:
@@ -90,3 +92,7 @@ for text in raw_data.values():
 
     block = text[0]
     print(get_problem_matches(block))
+
+    block = text[-1]
+    conclusion = get_conclusion_matches(block)
+    print(conclusion[0])
