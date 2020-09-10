@@ -61,8 +61,6 @@ def get_conclusion_matches(c_block: str) -> list:
             concl_m = re.search(concl, concl_sentence, re.IGNORECASE)
             if concl_m:
                 return [re.search(rf"{re.escape(concl_sentence)}.*$", c_block).group(0)]
-    for concl_sentence in tokenize.sent_tokenize(c_block):
-        print(concl_sentence)
     return []
 
 
@@ -94,24 +92,56 @@ for root, dirs, files in os.walk(path_to_dir):
 
 print(raw_data['0050602_en_Is_online_schooling_as_effective_as_in-class_education_noexp.txt'])
 
-for text in raw_data.values():
-    for block in text:
-        for sentence in tokenize.sent_tokenize(block):
-            for m in get_personal_opinion_matches(sentence):
-                if m:
-                    print(sentence)
+result_dict = dict()
+for filename in raw_data:
+    text = raw_data[filename]
+    result = {'text': text}
+    h = hash(str(result))
 
     block = text[0]
-    print(get_problem_matches(block))
+    if len(get_problem_matches(block)) > 0:
+        result['problem'] = block
 
     for block in text[1:-2]:
-        arguments = get_arguments_matches(block)
-        if len(arguments) > 0:
-            print(arguments)
-
-    for block in text[1:-1]:
-        opinions = get_other_opinions(block)
+        if len(get_arguments_matches(block)) > 0:
+            result['arguments'] = block
+        elif len(get_other_opinions(block)) > 0:
+            result['other'] = block
 
     block = text[-1]
-    conclusion = get_conclusion_matches(block)
-    print(conclusion[0])
+    if len(get_conclusion_matches(block)) > 0:
+        result['conclusion'] = block
+
+    for block in text:
+        for sentence in tokenize.sent_tokenize(block):
+            if len(get_personal_opinion_matches(sentence)) > 0:
+                result['personal'] = block
+
+    if hash(str(result)) != h:
+        result_dict[filename] = result
+
+print(len(result_dict))
+print(result_dict['0050551_en_How_can_teachers_make_online_classes_better_noexp.txt']['personal'])
+
+PROBLEM_PLACEHOLDER = '(\\ ПРОБЛЕМА \\ placeholder :: Введение, формулировка проблемы. \\)'
+ARGUMENTS_PLACEHOLDER = '(\\ АРГУМЕНТ  \\ placeholder \\)'
+OTHER_PLACEHOLDER = '(\\ ПРМНЕНИЕ \\ placeholder :: Противоположное мнение \\)'
+CONCLUSION_PLACEHOLDER = '(\\ ВЫВОД \\ placeholder :: Введение, формулировка проблемы. \\)'
+PERSONAL_PLACEHOLDER = '(\\ ЛМНЕНИЕ \\ placeholder :: Личное мнение \\)'
+
+for filename in result_dict:
+    source_text = raw_data[filename]
+    additions = result_dict[filename]
+    for addition in additions:
+        if addition == 'text':
+            continue
+        elif addition == 'problem':
+            print(PROBLEM_PLACEHOLDER.replace('placeholder', additions[addition]))
+        elif addition == 'arguments':
+            print(ARGUMENTS_PLACEHOLDER.replace('placeholder', additions[addition]))
+        elif addition == 'other':
+            print(OTHER_PLACEHOLDER.replace('placeholder', additions[addition]))
+        elif addition == 'conclusion':
+            print(CONCLUSION_PLACEHOLDER.replace('placeholder', additions[addition]))
+        elif addition == 'personal':
+            print(PERSONAL_PLACEHOLDER.replace('placeholder', additions[addition]))
