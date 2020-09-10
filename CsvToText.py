@@ -18,7 +18,7 @@ def create_file(file_name, file_meta, file_body):
     f.close()
 
 
-data = pd.read_csv("51-550.csv", delimiter=';')
+data = pd.read_csv("551-1050.csv", delimiter=';')
 
 prefix = u'%0d%1s' % (datetime.datetime.utcnow().timestamp(), os.path.sep)
 os.mkdir(prefix)
