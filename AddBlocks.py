@@ -1,7 +1,5 @@
-import pandas as pd
 import re
 import os
-import datetime
 import codecs
 from nltk import tokenize
 
@@ -28,7 +26,8 @@ ARGUMENTS = ['Likewise', 'Correspondingly', 'Equally', 'Not only… but also', '
              'Showing limitation or contradiction', 'Despite', 'in spite of', 'While', 'Even so', 'On the contrary',
              'Nevertheless', 'Nonetheless', 'Although', 'Admittedly']
 
-OPINIONS = [r'(opinion|other)s', r'(people|they) (think|thought|believe|believed|consider|considered)',
+OPINIONS = [r'ere are two points of view', r'(opinion|other)s',
+            r'(people|they) (think|thought|believe|believed|consider|considered|claim)',
             r'(many|other|most|other) people', r'(opposite|in other hand|differently)']
 
 
@@ -82,15 +81,23 @@ def get_other_opinions(c_block: str) -> list:
     return res
 
 
-path_to_dir = "C:\\Users\\Admin\\Projects\\CsvToText\\1599666643"
+path_to_dir = "C:\\Users\\Admin\\Projects\\CsvToText\\fixed_texts"
 
 raw_data = dict()
+heads = dict()
 for root, dirs, files in os.walk(path_to_dir):
     for filename in files:
         f = codecs.open(path_to_dir + os.sep + filename, "r", "utf-8")
-        raw_data[filename] = list(map(lambda s: s.strip(), f.read().split('\n')[7:]))
+        text = f.read()
+        if re.search(r'(ПРОБЛЕМА|АРГУМЕНТ|ПРМНЕНИЕ|ВЫВОД|ЛМНЕНИЕ)', text):
+            continue
+        raw_data[filename] = list(map(lambda s: s.strip(), text.split('\n')))
+        if str(raw_data[filename][0]).count('Тема'):
+            heads[filename] = raw_data[filename][:7]
+            raw_data[filename] = raw_data[filename][7:]
 
-print(raw_data['0050602_en_Is_online_schooling_as_effective_as_in-class_education_noexp.txt'])
+print(len(raw_data))
+print(raw_data['0050012_en_You_can_have_only_one_true_friend_Exp110.txt'])
 
 result_dict = dict()
 for filename in raw_data:
@@ -121,27 +128,45 @@ for filename in raw_data:
         result_dict[filename] = result
 
 print(len(result_dict))
-print(result_dict['0050551_en_How_can_teachers_make_online_classes_better_noexp.txt']['personal'])
+print(result_dict['0050012_en_You_can_have_only_one_true_friend_Exp110.txt']['personal'])
 
 PROBLEM_PLACEHOLDER = '(\\ ПРОБЛЕМА \\ placeholder :: Введение, формулировка проблемы. \\)'
 ARGUMENTS_PLACEHOLDER = '(\\ АРГУМЕНТ  \\ placeholder \\)'
 OTHER_PLACEHOLDER = '(\\ ПРМНЕНИЕ \\ placeholder :: Противоположное мнение \\)'
-CONCLUSION_PLACEHOLDER = '(\\ ВЫВОД \\ placeholder :: Введение, формулировка проблемы. \\)'
+CONCLUSION_PLACEHOLDER = '(\\ ВЫВОД \\ placeholder \\)'
 PERSONAL_PLACEHOLDER = '(\\ ЛМНЕНИЕ \\ placeholder :: Личное мнение \\)'
 
+
+def replace_by_block(addition_text: str, PLACEHOLDER: str, source_text: str) -> str:
+    replacement_text = PLACEHOLDER.replace('placeholder', addition_text)
+    return re.sub(re.escape(addition_text), replacement_text, source_text)
+
+
 for filename in result_dict:
-    source_text = raw_data[filename]
+    source_text = '\n'.join(raw_data[filename])
     additions = result_dict[filename]
     for addition in additions:
         if addition == 'text':
             continue
         elif addition == 'problem':
-            print(PROBLEM_PLACEHOLDER.replace('placeholder', additions[addition]))
+            source_text = replace_by_block(additions[addition], PROBLEM_PLACEHOLDER, source_text)
         elif addition == 'arguments':
-            print(ARGUMENTS_PLACEHOLDER.replace('placeholder', additions[addition]))
+            source_text = replace_by_block(additions[addition], ARGUMENTS_PLACEHOLDER, source_text)
         elif addition == 'other':
-            print(OTHER_PLACEHOLDER.replace('placeholder', additions[addition]))
+            source_text = replace_by_block(additions[addition], OTHER_PLACEHOLDER, source_text)
         elif addition == 'conclusion':
-            print(CONCLUSION_PLACEHOLDER.replace('placeholder', additions[addition]))
+            source_text = replace_by_block(additions[addition], CONCLUSION_PLACEHOLDER, source_text)
         elif addition == 'personal':
-            print(PERSONAL_PLACEHOLDER.replace('placeholder', additions[addition]))
+            source_text = replace_by_block(additions[addition], PERSONAL_PLACEHOLDER, source_text)
+    print('\n', filename)
+    print(source_text)
+
+    f = open('.\\added_texts\\' + filename, "w+", encoding='utf-8')
+    head = heads.get(filename)
+    if head is not None:
+        f.write('\n'.join(head))
+        f.write('\n')
+    f.write(source_text)
+    f.close()
+
+
