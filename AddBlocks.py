@@ -97,7 +97,7 @@ for root, dirs, files in os.walk(path_to_dir):
             raw_data[filename] = raw_data[filename][7:]
 
 print(len(raw_data))
-print(raw_data['0050012_en_You_can_have_only_one_true_friend_Exp110.txt'])
+print(raw_data['0051641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
 
 result_dict = dict()
 for filename in raw_data:
@@ -128,7 +128,7 @@ for filename in raw_data:
         result_dict[filename] = result
 
 print(len(result_dict))
-print(result_dict['0050012_en_You_can_have_only_one_true_friend_Exp110.txt']['personal'])
+print(result_dict['0051641_en_Online_education_Bad_or_good_invention_Exp112.txt']['personal'])
 
 PROBLEM_PLACEHOLDER = '(\\ ПРОБЛЕМА \\ placeholder :: Введение, формулировка проблемы. \\)'
 ARGUMENTS_PLACEHOLDER = '(\\ АРГУМЕНТ  \\ placeholder \\)'

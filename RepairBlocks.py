@@ -17,7 +17,7 @@ for root, dirs, files in os.walk(path_to_dir):
             f = codecs.open(path_to_dir + os.sep + filename, "r", "cp1251")
             raw_data[filename] = f.read()
 
-print(raw_data['50037_en_Neighbours_are_more_important_than_friends_and_relatives_Exp110.txt'])
+print(raw_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
 
 new_data = dict()
 print('-------------------------------------------------------------')
@@ -34,10 +34,7 @@ for filename in raw_data:
     if m:
         text = text[:m.end()] + ' ' + text[m.end():]
 
-    m = re.search(r'(\(\\[^\n]+)(\n)([^\n]+\\\))', text)
-    if m:
-        #text = m.group(1) + m.group(3)
-        text = re.sub(r'(\(\\[^\n]+)(\n)([^\n]+\\\))', m.group(1) + m.group(3), text)
+    text = re.sub(r'[0-9]+\sслова', '', text)
 
     # try to remove explicit linebreaks
     bs = list()
@@ -49,10 +46,17 @@ for filename in raw_data:
             bs.append('')
     text = '\n'.join(bs)
 
+    m = re.search(r'(\(\\[^\n(]+)(\n+)', text)
+    if m:
+        print(m.group(1))
+        text = re.sub(re.escape(m.group(0)), m.group(1) + ' ', text, count=1)
+
     new_data[filename] = text
 
-print(raw_data['50037_en_Neighbours_are_more_important_than_friends_and_relatives_Exp110.txt'])
-print(new_data['50037_en_Neighbours_are_more_important_than_friends_and_relatives_Exp110.txt'])
+print(raw_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'], '\n')
+print(new_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
+
+print(new_data['51649_en_What_opportunities_quarantine_gave_me_Exp112.txt'])
 
 for filename in new_data:
     fname = filename
