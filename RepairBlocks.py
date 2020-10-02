@@ -17,10 +17,36 @@ for root, dirs, files in os.walk(path_to_dir):
             f = codecs.open(path_to_dir + os.sep + filename, "r", "cp1251")
             raw_data[filename] = f.read()
 
-print(raw_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
+print(raw_data['50541_en_Is_online_schooling_as_effective_as_in-class_education_exp107.txt'])
 
 new_data = dict()
-print('-------------------------------------------------------------')
+
+for filename in new_data:
+    text = raw_data[filename] + ''
+    m = re.search(r'^Тема:', text)
+    if not m:
+        print(filename)
+        m2 = re.search(r'^[0-9]+_en(.+)(\е|e)xp([0-9]+)\.txt', filename, re.IGNORECASE)
+        if not m2:
+            m2 = re.search(r'^[0-9]+_en(.+)(\е|e)([0-9]+)xp\.txt', filename, re.IGNORECASE)
+        if not m2:
+            m2 = re.search(r'^[0-9]+_en(.+)(\е|e)x([0-9]+)p\.txt', filename, re.IGNORECASE)
+        if not m2:
+            m2 = re.search(r'^[0-9]+_en(.+)(\е|e)xp([0-9]+)\.txt', filename, re.IGNORECASE)
+        if m2:
+            meta = "Тема: (* %(theme)s *)\nКласс: 1 курс\nГод: 2020\nПредмет: английский\nТест: эссе тренировка\nЭксперт: " \
+                   "exp%(exp)d\n\n" % {'theme': m2.group(1).replace('_', ' '), 'exp': int(m2.group(3))}
+        else:
+            m2 = re.search(r'^[0-9]+_en(.+)([0-9]+)(\е|e)xp\.txt', filename, re.IGNORECASE)
+            meta = "Тема: (* %(theme)s *)\nКласс: 1 курс\nГод: 2020\nПредмет: английский\nТест: эссе тренировка\nЭксперт: " \
+                   "exp%(exp)d\n\n" % {'theme': m2.group(1).replace('_', ' '), 'exp': int(m2.group(2))}
+
+        print(meta)
+        text = meta + text
+    new_data[filename] = text
+
+print(new_data['50550_en_How_can_you_keep_in_touch_with_friends_while_staying_in_quarantine_Exp114.txt'])
+
 for filename in raw_data:
     text = raw_data[filename] + ''
     new_text = ''
@@ -56,12 +82,15 @@ for filename in raw_data:
 print(raw_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'], '\n')
 print(new_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
 
-print(new_data['51649_en_What_opportunities_quarantine_gave_me_Exp112.txt'])
+print(new_data['0050549_en_Is_online_schooling_as_affective_as_in-class_education_Exp106.txt'])
+
+re.search(r'\r\n', new_data['50550_en_How_can_you_keep_in_touch_with_friends_while_staying_in_quarantine_Exp114.txt'])
 
 for filename in new_data:
     fname = filename
     if not re.search(r'^00', fname):
         fname = '00' + fname
-    f = open(PREFIX + fname, "w+", encoding='utf-8')
-    f.write(new_data[filename])
+    t = re.sub(r'\r\n\r\n', '\n', new_data[filename], 100)
+    f = open(PREFIX + fname, "w", encoding='utf-8')
+    f.write(t)
     f.close()

@@ -18,7 +18,7 @@ def create_file(file_name, file_meta, file_body):
     f.close()
 
 
-data = pd.read_csv("551-1050.csv", delimiter=';')
+data = pd.read_csv("2251-2800.csv", delimiter=';')
 
 prefix = u'%0d%1s' % (datetime.datetime.utcnow().timestamp(), os.path.sep)
 os.mkdir(prefix)
@@ -26,7 +26,7 @@ os.mkdir(prefix)
 for row in data.iterrows():
     file_dict = dict(row[1])
 
-    if file_dict['theme'] is None or len(file_dict['theme']) == 0:
+    if file_dict['theme'] is None or not isinstance(file_dict['theme'], str) or len(file_dict['theme']) == 0:
         print(file_dict)
         file_dict['theme'] = u'_'.join(file_dict['body'].split()[:5])
 
