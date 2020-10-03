@@ -21,7 +21,7 @@ print(raw_data['50541_en_Is_online_schooling_as_effective_as_in-class_education_
 
 new_data = dict()
 
-for filename in new_data:
+for filename in raw_data:
     text = raw_data[filename] + ''
     m = re.search(r'^Тема:', text)
     if not m:
@@ -32,14 +32,16 @@ for filename in new_data:
         if not m2:
             m2 = re.search(r'^[0-9]+_en(.+)(\е|e)x([0-9]+)p\.txt', filename, re.IGNORECASE)
         if not m2:
-            m2 = re.search(r'^[0-9]+_en(.+)(\е|e)xp([0-9]+)\.txt', filename, re.IGNORECASE)
+            m2 = re.search(r'^[0-9]+_en(.+)(\е|e)xp\s?([0-9]+)\.txt', filename, re.IGNORECASE)
         if m2:
             meta = "Тема: (* %(theme)s *)\nКласс: 1 курс\nГод: 2020\nПредмет: английский\nТест: эссе тренировка\nЭксперт: " \
                    "exp%(exp)d\n\n" % {'theme': m2.group(1).replace('_', ' '), 'exp': int(m2.group(3))}
-        else:
-            m2 = re.search(r'^[0-9]+_en(.+)([0-9]+)(\е|e)xp\.txt', filename, re.IGNORECASE)
+        elif m2 := re.search(r'^[0-9]+_en(.+)([0-9]+)(\е|e)xp\.txt', filename, re.IGNORECASE):
             meta = "Тема: (* %(theme)s *)\nКласс: 1 курс\nГод: 2020\nПредмет: английский\nТест: эссе тренировка\nЭксперт: " \
                    "exp%(exp)d\n\n" % {'theme': m2.group(1).replace('_', ' '), 'exp': int(m2.group(2))}
+        elif m2 := re.search(r'^[0-9]+_en(.+)no(\е|e)xp\.txt', filename, re.IGNORECASE):
+            meta = "Тема: (* %(theme)s *)\nКласс: 1 курс\nГод: 2020\nПредмет: английский\nТест: эссе тренировка\nЭксперт: " \
+                   "noexp\n\n" % {'theme': m2.group(1).replace('_', ' ')}
 
         print(meta)
         text = meta + text
@@ -47,9 +49,8 @@ for filename in new_data:
 
 print(new_data['50550_en_How_can_you_keep_in_touch_with_friends_while_staying_in_quarantine_Exp114.txt'])
 
-for filename in raw_data:
-    text = raw_data[filename] + ''
-    new_text = ''
+for filename in new_data:
+    text = new_data[filename] + ''
 
     # try to remove gorged whitespaces
     m = re.search(r'\\\)[^,;:\.\?\!\-\n\s]', text)
@@ -60,12 +61,14 @@ for filename in raw_data:
     if m:
         text = text[:m.end()] + ' ' + text[m.end():]
 
-    text = re.sub(r'[0-9]+\sслова', '', text)
+    #text = re.sub(r'[0-9]+\sслова', '', text)
 
     # try to remove explicit linebreaks
     bs = list()
     for b in text.split('\n'):
         b = b.strip()
+        if re.search(r'^(E|eЕ|е)xp[0-9]+$', b):
+            continue
         if len(b) > 0:
             bs.append(b)
         if re.search(r'^Эксперт\:', b):
@@ -90,7 +93,6 @@ for filename in new_data:
     fname = filename
     if not re.search(r'^00', fname):
         fname = '00' + fname
-    t = re.sub(r'\r\n\r\n', '\n', new_data[filename], 100)
     f = open(PREFIX + fname, "w", encoding='utf-8')
-    f.write(t)
+    f.write(new_data[filename])
     f.close()
