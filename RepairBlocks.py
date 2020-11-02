@@ -23,7 +23,7 @@ new_data = dict()
 
 for filename in raw_data:
     text = raw_data[filename] + ''
-    m = re.search(r'^Тема:', text)
+    m = re.search(r'Тема:', text)
     if not m:
         print(filename)
         m2 = re.search(r'^[0-9]+_en(.+)(\е|e)xp([0-9]+)\.txt', filename, re.IGNORECASE)
@@ -82,12 +82,7 @@ for filename in new_data:
 
     new_data[filename] = text
 
-print(raw_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'], '\n')
-print(new_data['51641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
-
-print(new_data['0050549_en_Is_online_schooling_as_affective_as_in-class_education_Exp106.txt'])
-
-re.search(r'\r\n', new_data['50550_en_How_can_you_keep_in_touch_with_friends_while_staying_in_quarantine_Exp114.txt'])
+print(new_data['50550_en_How_can_you_keep_in_touch_with_friends_while_staying_in_quarantine_Exp114.txt'])
 
 for filename in new_data:
     fname = filename
