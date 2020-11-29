@@ -5,7 +5,7 @@ import datetime
 
 
 def create_meta(file_dict):
-    return "Тема: (* %(theme)s *)\nКласс: %(grade)s\nГод: 2020\nПредмет: английский\nТест: %(type)s\nЭксперт: " \
+    return "Тема: (* %(theme)s *)\nКласс: %(grade)d\nГод: 2020\nПредмет: английский\nТест: %(type)s\nЭксперт: " \
            "noexp\n\n" % file_dict
            #"%(Exp)s\n" % file_dict
 
@@ -17,12 +17,12 @@ def create_file(file_name, file_meta, file_body):
     f.close()
 
 
-data = pd.read_csv("2801-3489.csv", delimiter=';')
+data = pd.read_csv("4165-5429.csv", delimiter=';')
 
 prefix = u'%0d%1s' % (datetime.datetime.utcnow().timestamp(), os.path.sep)
 os.mkdir(prefix)
 
-for row in data.iterrows():
+for row in data.dropna().iterrows():
     file_dict = dict(row[1])
 
     if file_dict['theme'] is None or not isinstance(file_dict['theme'], str) or len(file_dict['theme']) == 0:

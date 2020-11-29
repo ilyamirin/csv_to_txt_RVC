@@ -42,7 +42,7 @@ def fix_name(path_to_dir_of_fixing_file: str, filename_to_fix: str):
                   path_to_dir_of_fixing_file + os.sep + '00' + filename_to_fix)
 
 
-path_to_dir = 'marked_texts'
+path_to_dir = 'added_texts'
 for file in os.listdir(path_to_dir):
     fix_name(path_to_dir, file)
 
@@ -76,7 +76,7 @@ for number in combinations:
     v = combinations[number]
     if len(v) < 2:
         continue
-    if max(v) / (min(v) + 0.00000000001) > 2:
+    if (max(v) - min(v)) / (max(v) + 000000000.1) > 0.75:
         discrepancies[number] = v
 pd.DataFrame.from_dict(discrepancies).transpose().to_excel(path_to_dir + os.sep + 'расхождения.xlsx')
 
@@ -90,13 +90,17 @@ for d in discrepancies:
 pd.DataFrame.from_records(suspected_experts).groupby([0]).mean().to_clipboard()
 
 # тексты в которых неразмечены блоки
+no_blocks = list()
 for file in os.listdir(path_to_dir):
+    if not file.endswith('txt'):
+        continue
     fix_name(path_to_dir, file)
     if file.count('.txt') == 0:
         continue
     f = codecs.open(path_to_dir + os.sep + file, "r", "utf-8")
     text = f.read()
     if not re.search(r'(ПРОБЛЕМА|АРГУМЕНТ|ПРМНЕНИЕ|ВЫВОД|ЛМНЕНИЕ)', text):
-        print(file)
-        copyfile(path_to_dir + os.sep + file, 'fixed_texts' + os.sep + file)
+        no_blocks.append(file)
+        #copyfile(path_to_dir + os.sep + file, 'fixed_texts' + os.sep + file)
+    f.close()
 

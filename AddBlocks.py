@@ -87,6 +87,8 @@ raw_data = dict()
 heads = dict()
 for root, dirs, files in os.walk(path_to_dir):
     for filename in files:
+        if not filename.endswith('txt'):
+            continue
         f = codecs.open(path_to_dir + os.sep + filename, "r", "utf-8")
         text = f.read()
         if re.search(r'(ПРОБЛЕМА|АРГУМЕНТ|ПРМНЕНИЕ|ВЫВОД|ЛМНЕНИЕ)', text):
@@ -97,7 +99,7 @@ for root, dirs, files in os.walk(path_to_dir):
             raw_data[filename] = raw_data[filename][7:]
 
 print(len(raw_data))
-print(raw_data['0051641_en_Online_education_Bad_or_good_invention_Exp112.txt'])
+print(raw_data['0051498_en_Is_online_schooling_as_effective_as_in-class_education_Exp114.txt'])
 
 result_dict = dict()
 for filename in raw_data:
@@ -119,16 +121,17 @@ for filename in raw_data:
     if len(get_conclusion_matches(block)) > 0:
         result['conclusion'] = block
 
-    for block in text:
-        for sentence in tokenize.sent_tokenize(block):
-            if len(get_personal_opinion_matches(sentence)) > 0:
-                result['personal'] = block
+    if len(text) > 1:
+        for block in text[:-1]:
+            for sentence in tokenize.sent_tokenize(block):
+                if len(get_personal_opinion_matches(sentence)) > 0:
+                    result['personal'] = block
 
     if hash(str(result)) != h:
         result_dict[filename] = result
 
 print(len(result_dict))
-print(result_dict['0051641_en_Online_education_Bad_or_good_invention_Exp112.txt']['personal'])
+print(result_dict['0051498_en_Is_online_schooling_as_effective_as_in-class_education_Exp114.txt'])
 
 PROBLEM_PLACEHOLDER = '(\\ ПРОБЛЕМА \\ placeholder :: Введение, формулировка проблемы. \\)'
 ARGUMENTS_PLACEHOLDER = '(\\ АРГУМЕНТ  \\ placeholder \\)'
